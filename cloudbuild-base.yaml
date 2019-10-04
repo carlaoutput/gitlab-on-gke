@@ -1,0 +1,27 @@
+# In this directory, run the following command to build this builder.
+# $ gcloud builds submit . --substitutions _REGION='<region>'
+steps:
+  - name: 'gcr.io/${PROJECT_ID}/terraform:0.12.8'
+    dir: './terraform'
+    args: [
+      'init',
+      '-backend-config=bucket=${_PROJECT_ID}-gitlab'
+    ]
+    env:
+      - "TF_VAR_project=${_PROJECT_ID}"
+      - "TF_VAR_region=${_REGION}"
+  - name: 'gcr.io/${PROJECT_ID}/terraform:0.12.8'
+    dir: './terraform'
+    args: [
+      'apply',
+      '-auto-approve',
+      '-var-file=input.tfvars'
+    ]
+    env:
+      - "TF_VAR_project=${_PROJECT_ID}"
+      - "TF_VAR_region=${_REGION}"
+    timeout: 1800s
+substitutions:
+  _REGION: "us-west1"
+  _PROJECT_ID: "my-project"
+timeout: 1860s
