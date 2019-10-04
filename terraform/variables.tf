@@ -1,7 +1,7 @@
 variable project {}
 variable region {}
-variable kubernetes-version {}
+variable gke-cluster-version {}
 variable domain-name {}
-variable create-dns-zone { default = "false" }
 variable dns-zone-name {}
 variable letsencrypt-email {}
+variable gitlab-chart-version {}

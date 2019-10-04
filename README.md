@@ -80,24 +80,26 @@ Note: Steps 1 and 2 are optional. Also, you could perform those steps via the GC
    - Patches `cloudbuild.yaml` file with new GCP project name
    - Installs [Cloudbuidler Community Builders](https://github.com/GoogleCloudPlatform/cloud-builders-community) (terraform)
  
-1. Review and update values `./teraform/input.tfvars`
+1. Review and update substitutions values in `.cloudbuild.yaml`
 
-    ```hcl-terraform
-    kubernetes-version = "1.13.7-gke.24"
-    
-    create-dns-zone = true
-    dns-zone-name = "example-com"
-    domain-name = "example.com"
-    letsencrypt-email = "my-email@example.com"
+    ```yaml
+    substitutions:
+      _REGION: "us-west1"
+      _PROJECT_ID: "test-gitlab"
+      _DNS_ZONE_NAME: "example-com"
+      _DOMAIN_NAME: "example.com"
+      _LETSENCRYPT_EMAIL: "my-email@example.com"
+      _CLUSTER_VERSION: "1.13.7-gke.24"
     ```
    
-    - Update `kubernetes-version` (most likely, the version in the guide is outdated)
+    - Update `_CLUSTER_VERSION` (most likely, the version in the guide is outdated)
     - Doman and DNS        
         - If you are using an existing project that already has DNS Zone, and you would like to
         use this zone, you want:
             - set `create-dns-zone = false` (or remove it altogether)
             - set `dns-zone-name`, `domain-name` - to match the existent DNS Zone
         - If you are creating a new DNS Zone, note that you will need to update your Domain Registration with DNS Name Servers from the newly created DNZ Zone. Note: such an update may take 24-72hrs to take effect.
+            - uncomment `dns-zone` steps in `cloudbuild.yaml`
     - Email  for `letsencrypt` TLS certificate expiration notifications    
   
 1. Deploy GitLab

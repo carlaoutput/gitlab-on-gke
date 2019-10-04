@@ -26,17 +26,6 @@ resource kubernetes_namespace gitlab {
   }
 }
 
-resource local_file storage-connection {
-  filename = "storage-connection.yaml"
-  content =  <<EOT
-provider: Google
-google_project: ${var.project}
-google_client_email: ${var.storage-service-account-email}
-google_json_key_string: |
-  ${indent(2, base64decode(var.storage-service-account-key))}
-EOT
-}
-
 resource kubernetes_secret storage-connection {
   metadata {
     name = "storage-connection"
@@ -45,7 +34,13 @@ resource kubernetes_secret storage-connection {
   }
   data = {
     //noinspection HILConvertToHCL
-    "${local.storage-connection-secret-key}" = local_file.storage-connection.content
+    "${local.storage-connection-secret-key}" = <<EOT
+provider: Google
+google_project: ${var.project}
+google_client_email: ${var.storage-service-account-email}
+google_json_key_string: |
+  ${indent(2, base64decode(var.storage-service-account-key))}
+EOT
   }
 }
 
@@ -61,16 +56,6 @@ resource kubernetes_secret storage-config {
   }
 }
 
-resource local_file registry-config {
-  filename = "registry-config.yaml"
-  content = <<EOT
-gcs:
-  bucket: ${var.registry-bucket}
-  key: ${local.registry-config-secret-key}
-  extraKey: ${local.registry-config-secret-extra-key}
-EOT
-}
-
 resource kubernetes_secret registry-config {
   metadata {
     name = "registry-config"
@@ -79,13 +64,19 @@ resource kubernetes_secret registry-config {
   }
   data = {
     //noinspection HILConvertToHCL
-    "${local.registry-config-secret-key}" = local_file.registry-config.content,
+    "${local.registry-config-secret-key}" = <<EOT
+gcs:
+  bucket: ${var.registry-bucket}
+  key: ${local.registry-config-secret-key}
+  extraKey: ${local.registry-config-secret-extra-key}
+EOT
     //noinspection HILConvertToHCL
     "${local.registry-config-secret-extra-key}" = base64decode(var.storage-service-account-key)
   }
 }
 
 provider helm {
+
   install_tiller = true
   kubernetes {
     load_config_file = false

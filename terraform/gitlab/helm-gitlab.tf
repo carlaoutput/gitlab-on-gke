@@ -9,6 +9,7 @@ resource helm_release gitlab {
   repository = data.helm_repository.gitlab.metadata.0.name
   chart = "gitlab"
   namespace = kubernetes_namespace.gitlab.metadata.0.name
+  version = var.chart-version
 
   set {
     name = "global.appConfig.lfs.bucket"

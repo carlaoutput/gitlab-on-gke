@@ -45,7 +45,7 @@ module storage {
 module k8s {
   source = "./kubernetes"
   cluster-name = "gitlab"
-  cluster-version = var.kubernetes-version
+  cluster-version = var.gke-cluster-version
   letsencrypt-email = var.letsencrypt-email
   project = var.project
   region = var.region
@@ -54,15 +54,7 @@ module k8s {
   }
 }
 
-resource google_dns_managed_zone gitlab {
-  count = var.create-dns-zone ? 1 : 0
-  name = var.dns-zone-name
-  dns_name = "${var.domain-name}."
-  project = var.project
-}
-
 data google_dns_managed_zone gitlab {
-  depends_on = [google_dns_managed_zone.gitlab]
   name = var.dns-zone-name
   project = var.project
 }
@@ -72,6 +64,7 @@ module gitlab {
   k8s-access-token = module.k8s.cluster-token
   k8s-ca-cert = module.k8s.cluster-ca-cert
   k8s-endpoint = module.k8s.cluster-endpoint
+  chart-version = var.gitlab-chart-version
   namespace = "gitlab"
   domain-name = var.domain-name
   dns-managed-zone = data.google_dns_managed_zone.gitlab

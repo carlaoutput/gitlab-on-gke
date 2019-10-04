@@ -4,6 +4,7 @@ variable k8s-ca-cert {}
 variable k8s-endpoint {}
 variable k8s-access-token {}
 variable tiller-service-account { default = "tiller" }
+variable chart-version {}
 variable namespace {}
 
 variable domain-name {}

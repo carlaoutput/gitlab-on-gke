@@ -13,9 +13,6 @@ variable chart-name {
 variable chart-version {
   default = "v0.9.1"
 }
-variable chart-crd-version {
-  default = "release-0.9"
-}
 variable cluster-issuer-name {
   default = "letsencrypt-prod"
 }
