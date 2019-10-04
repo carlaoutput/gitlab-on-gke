@@ -1,6 +1,15 @@
 # In this directory, run the following command to build this builder.
 # $ gcloud builds submit . --substitutions _REGION='<region>'
 steps:
+  - name: gcr.io/cloud-builders/gsutil
+    args: [
+      'cp',
+      'gs://${_PROJECT_ID}/util/terraform-provider-helm',
+      './terraform/.terraform/plugins/linux_amd64/terraform-provider-helm'
+    ]
+  - name: ubuntu
+    args: [ 'chmod', '+x', './terraform/.terraform/plugins/linux_amd64/terraform-provider-helm']
+
 #  - name: 'gcr.io/${PROJECT_ID}/terraform:0.12.8'
 #    dir: './terraform/dns-zone'
 #    args: [
