@@ -11,8 +11,7 @@ variable domain-name {}
 variable dns-managed-zone {}
 variable static-ip-address{}
 
-variable sqlproxy-service-account-key {}
-variable sqlproxy-instance-name {}
+variable sql-instance-private-ip-address {}
 variable sql-database {}
 variable sql-username {}
 variable sql-password {}
@@ -34,3 +33,13 @@ variable backup-tmp-bucket {}
 
 variable cluster-issuer-filename {}
 variable cluster-issuer-name {}
+
+variable smtp-enabled { default = "false" }
+variable smtp-address {}
+variable smtp-port { default = "587" }
+variable smtp-user-name {}
+variable smtp-user-password {}
+variable smtp-starttls-auto { default = "true" }
+variable smtp-tls { default = "false" }
+variable smtp-email-from {}
+variable smtp-email-reply-to {}

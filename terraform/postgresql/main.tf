@@ -1,26 +1,3 @@
-resource google_service_account sqlproxy {
-  account_id = var.sqlproxy-service-account-name
-  display_name = var.sqlproxy-service-account-display-name
-  project = var.project
-}
-
-resource google_service_account_key sqlproxy {
-  service_account_id = google_service_account.sqlproxy.id
-}
-
-data google_service_account_key sqlproxy {
-  name = google_service_account_key.sqlproxy.name
-  public_key_type = "TYPE_X509_PEM_FILE"
-  project =  var.project
-}
-
-resource google_project_iam_member sqlproxy {
-  for_each = toset(var.sqlproxy-iam-roles)
-  project = var.project
-  member = "serviceAccount:${google_service_account.sqlproxy.email}"
-  role = each.key
-}
-
 // random suffix for database instance name
 // Google retains database instance for up to 60 days after deletion
 // thus it is not possible to use the same database instance name
@@ -36,6 +13,11 @@ locals {
   read-replica-name = "${var.instance-name}-${random_id.suffix.hex}-rr"
 }
 
+data google_compute_network default {
+  project = var.project
+  name = "default"
+}
+
 resource google_sql_database_instance gitlab {
   project = var.project
   region = var.region
@@ -43,6 +25,10 @@ resource google_sql_database_instance gitlab {
   database_version = var.engine_version
   name = local.instance-name
   settings {
+    ip_configuration {
+      ipv4_enabled = false
+      private_network = data.google_compute_network.default.self_link
+    }
     tier = "db-f1-micro"
   }
   timeouts {
@@ -57,9 +43,14 @@ resource google_sql_database gitlab {
   instance = google_sql_database_instance.gitlab.name
 }
 
+resource random_string password {
+  length = 16
+  override_special = "1"
+}
+
 resource google_sql_user gitlab {
   project = var.project
   name = var.user-name
   instance = google_sql_database_instance.gitlab.name
-  password = var.user-password
+  password = random_string.password.result
 }

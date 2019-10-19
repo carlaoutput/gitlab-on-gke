@@ -10,6 +10,9 @@ locals {
 
   postgresql-secret-name = "postgresql"
   postgresql-secret-key = "password"
+
+  smtp-secret-name = "smtp"
+  smtp-secret-key = "password"
 }
 
 provider kubernetes {
@@ -99,3 +102,14 @@ resource kubernetes_secret postgresql {
   }
 }
 
+resource kubernetes_secret smtp {
+  metadata {
+    name = "smtp"
+    namespace = kubernetes_namespace.gitlab.metadata.0.name
+    labels = local.labels
+  }
+  data = {
+    //noinspection HILConvertToHCL
+    "${local.smtp-secret-key}" = var.smtp-user-password
+  }
+}

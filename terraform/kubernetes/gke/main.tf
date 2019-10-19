@@ -29,7 +29,7 @@ resource google_container_cluster cluster {
 resource google_container_node_pool node-pool {
   autoscaling {
     max_node_count = 5
-    min_node_count = 2
+    min_node_count = 1
   }
   cluster = google_container_cluster.cluster.name
   location = var.cluster-region

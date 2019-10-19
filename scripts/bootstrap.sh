@@ -30,6 +30,7 @@ ROLES=(
   "roles/cloudkms.admin"
   "roles/cloudsql.admin"
   "roles/compute.admin"
+  "roles/compute.networkAdmin"
   "roles/container.admin"
   "roles/dns.admin"
   "roles/iam.serviceAccountAdmin"

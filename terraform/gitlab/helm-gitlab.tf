@@ -1,7 +1,6 @@
 data helm_repository gitlab {
   name = "gitlab"
   url = "https://charts.gitlab.io/"
-  depends_on = [helm_release.sql-proxy]
 }
 
 resource helm_release gitlab {
@@ -11,6 +10,11 @@ resource helm_release gitlab {
   namespace = kubernetes_namespace.gitlab.metadata.0.name
   version = var.chart-version
 
+  // storage buckets settings
+  set {
+    name = "global.minio.enabled"
+    value = "false"
+  }
   set {
     name = "global.appConfig.lfs.bucket"
     value = var.lfs-bucket
@@ -83,7 +87,7 @@ resource helm_release gitlab {
     name = "global.appConfig.pseudonymizer.connection.key"
     value = local.storage-connection-secret-key
   }
-
+  // Backup buckets
   set {
     name = "global.appConfig.backups.bucket"
     value = var.backup-bucket
@@ -93,6 +97,7 @@ resource helm_release gitlab {
     value = var.backup-tmp-bucket
   }
 
+  // Domain and Ingress
   set {
     name = "global.hosts.domain"
     value = var.domain-name
@@ -101,7 +106,14 @@ resource helm_release gitlab {
     name = "global.hosts.externalIP"
     value = "static-ip-address"
   }
-
+  set {
+    name = "certmanager.install"
+    value = "false"
+  }
+  set {
+    name = "nginx-ingress.enabled"
+    value = "false"
+  }
   set {
     name = "global.ingress.enabled"
     value = "false"
@@ -119,6 +131,10 @@ resource helm_release gitlab {
     value = var.cluster-issuer-name
   }
   set {
+    name = "global.ingress.annotations.\"kubernetes\\.io/tls-acme\""
+    value = "true"
+  }
+  set {
     name = "gitlab.unicorn.ingress.tls.secretName"
     value = "gitlab-tls"
   }
@@ -127,14 +143,14 @@ resource helm_release gitlab {
     value = "registry-tls"
   }
 
+  // Database settings
   set {
-    name = "global.minio.enabled"
+    name = "postgresql.install"
     value = "false"
   }
-
   set {
     name = "global.psql.host"
-    value = "${helm_release.sql-proxy.name}-${helm_release.sql-proxy.chart}"
+    value = var.sql-instance-private-ip-address
   }
   set {
     name = "global.psql.password.secret"
@@ -157,6 +173,11 @@ resource helm_release gitlab {
     value = var.sql-username
   }
 
+  // Redis settings
+  set {
+    name = "redis.enabled"
+    value = "false"
+  }
   set {
     name = "global.redis.host"
     value = var.redis-host
@@ -174,12 +195,6 @@ resource helm_release gitlab {
     name = "global.registry.bucket"
     value = var.registry-bucket
   }
-
-  set {
-    name = "certmanager.install"
-    value = "false"
-  }
-
   set {
     name = "gitlab.task-runner.backups.objectStorage.config.secret"
     value = kubernetes_secret.storage-config.metadata.0.name
@@ -188,17 +203,6 @@ resource helm_release gitlab {
     name = "gitlab.task-runner.backups.objectStorage.config.key"
     value = local.storage-config-secret-key
   }
-
-  set {
-    name = "nginx-ingress.enabled"
-    value = "false"
-  }
-
-  set {
-    name = "redis.enabled"
-    value = "false"
-  }
-
   set {
     name = "registry.storage.secret"
     value = kubernetes_secret.registry-config.metadata.0.name
@@ -212,10 +216,52 @@ resource helm_release gitlab {
     value = local.registry-config-secret-extra-key
   }
 
+  // SMTP settings
   set {
-    name = "postgresql.install"
-    value = "false"
+    name = "global.smtp.enabled"
+    value = var.smtp-enabled
   }
+  set {
+    name = "global.smtp.address"
+    value = var.smtp-address
+  }
+  set {
+    name = "global.smtp.port"
+    value = var.smtp-port
+  }
+  set {
+    name = "global.smtp.user_name"
+    value = var.smtp-user-name
+  }
+  set {
+    name = "global.smtp.password.secret"
+    value = local.smtp-secret-name
+  }
+  set {
+    name = "global.smtp.password.key"
+    value = local.smtp-secret-key
+  }
+  set {
+    name = "global.smtp.domain"
+    value = var.domain-name
+  }
+  set {
+    name = "global.smtp.starttls_auto"
+    value = var.smtp-starttls-auto
+  }
+  set {
+    name = "global.smtp.tls"
+    value = var.smtp-tls
+  }
+  set {
+    name = "global.email.from"
+    value = var.smtp-email-from
+  }
+  set {
+    name = "global.email.reply_to"
+    value = var.smtp-email-reply-to
+  }
+
 }
 
 resource google_dns_record_set gitlab {
